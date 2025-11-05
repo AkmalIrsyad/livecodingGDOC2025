@@ -6,9 +6,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.gogoro.mycrud.R
-import com.gogoro.mycrud.data.entity.User
+import com.gogoro.mycrud.data.local.entity.Note
 
-class UserAdapter(var list: List<User>) : RecyclerView.Adapter<UserAdapter.ViewHolder>() {
+class NoteAdapter(var list: List<Note>) : RecyclerView.Adapter<NoteAdapter.ViewHolder>() {
 
     fun setDialog(dialog: Dialog){
         this.dialog = dialog
@@ -33,9 +33,9 @@ class UserAdapter(var list: List<User>) : RecyclerView.Adapter<UserAdapter.ViewH
         holder: ViewHolder,
         position: Int
     ) {
-        holder.fullName.text = list[position].fullName
-        holder.email.text = list[position].email
-        holder.phone.text = list[position].phone
+//        holder.fullName.text = list[position].fullName
+//        holder.email.text = list[position].email
+//        holder.phone.text = list[position].phone
 
     }
 

@@ -6,8 +6,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.gogoro.mycrud.data.AppDatabase
-import com.gogoro.mycrud.data.entity.User
+import com.gogoro.mycrud.data.local.AppDatabase
 
 class EditorActivity : AppCompatActivity() {
     private lateinit var fullName: EditText

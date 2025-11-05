@@ -11,17 +11,18 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.VERTICAL
-import com.gogoro.mycrud.adapter.UserAdapter
-import com.gogoro.mycrud.data.AppDatabase
-import com.gogoro.mycrud.data.entity.User
+import com.gogoro.mycrud.adapter.NoteAdapter
+import com.gogoro.mycrud.data.local.AppDatabase
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var fab: FloatingActionButton
     private var list = mutableListOf<User>()
-    private lateinit var adapter: UserAdapter
+    private lateinit var adapter: NoteAdapter
     private lateinit var database: AppDatabase
 
 
@@ -33,8 +34,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         recyclerView = findViewById(R.id.recycler_view)
         fab = findViewById(R.id.fab)
-        adapter = UserAdapter(list)
-        adapter.setDialog(object : UserAdapter.Dialog{
+        adapter = NoteAdapter(list)
+        adapter.setDialog(object : NoteAdapter.Dialog{
             // Membuat dialog view ketika item di klik
             override fun onClick(position: Int) {
                 val dialog = AlertDialog.Builder(this@MainActivity)
