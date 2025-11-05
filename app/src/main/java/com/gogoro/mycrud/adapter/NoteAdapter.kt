@@ -1,5 +1,6 @@
 package com.gogoro.mycrud.adapter
 
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,7 +35,15 @@ class NoteAdapter(
             tvDesc.text = item.desc
             tvCreatedAt.text = item.createdAt.toReadableDate()
             cbFinished.isChecked = item.finished
-
+            cbFinished.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    tvTitle.paintFlags = tvTitle.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                    tvDesc.paintFlags = tvDesc.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                } else {
+                    tvTitle.paintFlags = tvTitle.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                    tvDesc.paintFlags = tvDesc.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                }
+            }
             root.setOnClickListener { onItemClick?.invoke(item) }
         }
     }
@@ -47,10 +56,6 @@ class NoteAdapter(
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         holder.bind(getItem(position))
-    }
-
-    fun updateData(newList: List<Note>) {
-        submitList(newList)
     }
 }
 
