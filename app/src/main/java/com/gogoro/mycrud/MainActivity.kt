@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var noteAdapter: NoteAdapter
 
     private val noteViewModel by viewModels<NoteViewModel>()
 
@@ -37,13 +38,33 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        noteAdapter = NoteAdapter(
+            onItemClick = { note ->
+                Intent(this, EditorActivity::class.java).apply {
+                    putExtra("NOTE_ID", note.id)
+                }.also { startActivity(it) }
+            }
+        )
+
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = noteAdapter
+            setHasFixedSize(true)
+            addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+        }
+
         // Mulai collect data (state) saat lifecycle status started
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 noteViewModel.state.collect { newState ->
                     noteState = newState
+                    noteAdapter.submitList(newState.notes)
                 }
             }
+        }
+
+        binding.fab.setOnClickListener {
+            startActivity(Intent(this, EditorActivity::class.java))
         }
     }
 

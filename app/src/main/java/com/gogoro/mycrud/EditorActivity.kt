@@ -5,80 +5,88 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.gogoro.mycrud.data.local.AppDatabase
+import com.gogoro.mycrud.data.local.entity.Note
+import com.gogoro.mycrud.databinding.ActivityEditorBinding
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
+@AndroidEntryPoint
 class EditorActivity : AppCompatActivity() {
-    private lateinit var fullName: EditText
-    private lateinit var email: EditText
-    private lateinit var phone: EditText
-    private lateinit var btnSave: Button
-    private lateinit var database: AppDatabase
-    private lateinit var titleText: TextView
+
+    private lateinit var binding: ActivityEditorBinding
+    private val viewModel: EditorViewModel by viewModels()
+
+    private var noteId: Int? = null
+    private var createdAt: Long = System.currentTimeMillis()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_editor)
 
-        // Inisialisasi view
-        fullName = findViewById(R.id.full_name)
-        email = findViewById(R.id.email)
-        phone = findViewById(R.id.phone)
-        btnSave = findViewById(R.id.btn_save)
-        titleText = findViewById(R.id.title)
+        binding = ActivityEditorBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        database = AppDatabase.getInstance(applicationContext)
+        // ambil id dari intent
+        noteId = intent.getIntExtra("NOTE_ID", -1).takeIf { it != -1 }
 
-        // Ambil data intent
-        val extras = intent.extras
-        if (extras != null) {
-            val id = extras.getInt("id", 0)
-            val user = database.userDao().get(id)
+        // kalau ada, berarti edit
+        noteId?.let { id ->
+            viewModel.getNoteById(id)
+            observeNote()
+        } ?: run {
+            binding.title.text = "Tambah Catatan"
+            binding.etCreatedAt.setText(formatDate(createdAt))
+        }
 
-            // Ubah teks title jadi "Edit Data Pengguna"
-            titleText.text = "Edit Data Pengguna"
+        binding.btnSave.setOnClickListener {
+            saveNote()
+        }
+    }
 
-            // Prefill data ke form
-            fullName.setText(user.fullName)
-            email.setText(user.email)
-            phone.setText(user.phone)
-
-            // Klik tombol simpan → update data
-            btnSave.setOnClickListener {
-                if (fullName.text.isNotEmpty() && email.text.isNotEmpty() && phone.text.isNotEmpty()) {
-                    database.userDao().update(
-                        User(
-                            id,
-                            fullName = fullName.text.toString(),
-                            email = email.text.toString(),
-                            phone = phone.text.toString()
-                        )
-                    )
-                    finish()
-                } else {
-                    Toast.makeText(this, "Mohon lengkapi data", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-        } else {
-            // Mode tambah data baru
-            titleText.text = "Tambah Data Pengguna"
-
-            btnSave.setOnClickListener {
-                if (fullName.text.isNotEmpty() && email.text.isNotEmpty() && phone.text.isNotEmpty()) {
-                    database.userDao().insertAll(
-                        User(
-                            null,
-                            fullName = fullName.text.toString(),
-                            email = email.text.toString(),
-                            phone = phone.text.toString()
-                        )
-                    )
-                    finish()
-                } else {
-                    Toast.makeText(this, "Mohon lengkapi data", Toast.LENGTH_SHORT).show()
+    private fun observeNote() {
+        lifecycleScope.launch {
+            viewModel.selectedNote.collect { note ->
+                note?.let {
+                    binding.title.text = "Edit Catatan"
+                    binding.etTitle.setText(it.title)
+                    binding.etDesc.setText(it.desc)
+                    binding.etCreatedAt.setText(formatDate(it.createdAt))
+                    createdAt = it.createdAt
                 }
             }
         }
+    }
+
+    private fun saveNote() {
+        val title = binding.etTitle.text.toString().trim()
+        val desc = binding.etDesc.text.toString().trim()
+
+        if (title.isEmpty()) {
+            binding.etTitle.error = "Judul wajib diisi"
+            return
+        }
+
+        val note = Note(
+            id = noteId ?: 0,
+            title = title,
+            desc = desc,
+            createdAt = createdAt,
+            finished = false
+        )
+
+        if (noteId == null) viewModel.insertNote(note)
+        else viewModel.updateNote(note)
+
+        finish()
+    }
+
+    private fun formatDate(time: Long): String {
+        return SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(time))
     }
 }

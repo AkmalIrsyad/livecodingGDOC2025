@@ -5,42 +5,55 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.gogoro.mycrud.R
 import com.gogoro.mycrud.data.local.entity.Note
+import com.gogoro.mycrud.databinding.NoteItemBinding
 import java.text.SimpleDateFormat
+import java.util.Date
 
 class NoteAdapter(
-    private val notes: MutableList<Note>
-) : RecyclerView.Adapter<NoteAdapter.NoteViewHolder>() {
+    private val onItemClick: ((Note) -> Unit)? = null
+) : ListAdapter<Note, NoteAdapter.VH>(DIFF) {
 
-    inner class NoteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tvTitle: TextView = itemView.findViewById(R.id.tvTitle)
-        val tvDesc: TextView = itemView.findViewById(R.id.tvDesc)
-        val tvCreatedAt: TextView = itemView.findViewById(R.id.tvCreatedAt)
-        val cbFinished: CheckBox = itemView.findViewById(R.id.cbFinished)
+    companion object {
+        private val DIFF = object : DiffUtil.ItemCallback<Note>() {
+            override fun areItemsTheSame(old: Note, new: Note): Boolean = old.id == new.id
+            override fun areContentsTheSame(old: Note, new: Note): Boolean = old == new
+        }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.note_item, parent, false)
-        return NoteViewHolder(view)
+    inner class VH(
+        private val binding: NoteItemBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(item: Note) = with(binding) {
+            tvTitle.text = item.title
+            tvDesc.text = item.desc
+            tvCreatedAt.text = item.createdAt.toReadableDate()
+            cbFinished.isChecked = item.finished
+
+            root.setOnClickListener { onItemClick?.invoke(item) }
+        }
     }
 
-    override fun getItemCount(): Int = notes.size
-
-    override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
-        val item = notes[position]
-
-        holder.tvTitle.text = item.title
-        holder.tvDesc.text = item.desc
-        holder.tvCreatedAt.text = SimpleDateFormat("dd MMM yyyy").format(item.createdAt)
-        holder.cbFinished.isChecked = item.finished
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        val inflater = LayoutInflater.from(parent.context)
+        val binding = NoteItemBinding.inflate(inflater, parent, false)
+        return VH(binding)
     }
 
-    fun setData(newList: List<Note>) {
-        notes.clear()
-        notes.addAll(newList)
-        notifyDataSetChanged()
+    override fun onBindViewHolder(holder: VH, position: Int) {
+        holder.bind(getItem(position))
     }
+
+    fun updateData(newList: List<Note>) {
+        submitList(newList)
+    }
+}
+
+private fun Long.toReadableDate(): String {
+    return SimpleDateFormat("dd MMM yyyy", java.util.Locale.getDefault()).format(Date(this))
 }
