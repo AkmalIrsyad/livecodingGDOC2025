@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:background="@android:color/white">
+
+    <!-- Toolbar untuk judul halaman -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/topAppBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/teal_700"
+        android:title="Daftar Data Pengguna"
+        android:titleTextColor="@android:color/white"
+        app:titleCentered="true" />
+
+    <!-- Konten utama: daftar data -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:padding="12dp"
+        android:clipToPadding="false" />
+
+    <!-- Tombol tambah data -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="20dp"
+        android:contentDescription="Tambah Data"
+        android:src="@drawable/outline_add_24"
+        app:tint="@android:color/white"
+        app:backgroundTint="@color/teal_700"
+        app:useCompatPadding="true"
+        android:elevation="6dp" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

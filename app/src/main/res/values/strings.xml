@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">MyCrud</string>
+    <string-array name="items_option">
+        <item>Ubah</item>
+        <item>Hapus</item>
+        <item>Batal</item>
+    </string-array>
+</resources>
